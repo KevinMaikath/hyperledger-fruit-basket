@@ -17,7 +17,7 @@ class State {
     constructor(stateClass, keyParts) {
         this.class = stateClass;
         this.key = State.makeKey(keyParts);
-        this.currentState = null;
+        // this.currentState = null;
     }
 
     getClass() {
@@ -86,7 +86,7 @@ class State {
      * @param (String[]) keyParts
      */
     static makeKey(keyParts) {
-        return keyParts.map(part => JSON.stringify(part)).join(':');
+        return keyParts.map(part => part.toString()).join(':');
     }
 
     static splitKey(key){

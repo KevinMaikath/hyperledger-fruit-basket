@@ -58,7 +58,7 @@ class FruitBasketContract extends Contract {
     async sell(ctx, seller, id, owner, fruitName, price) {
 
         // create an instance of the basket
-        let basket = FruitBasket.createInstance(seller, id, owner, fruitName, price);
+        let basket = FruitBasket.createInstance(seller, id, owner, fruitName, Number.parseFloat(price));
 
         // // Smart contract, rather than paper, moves paper into ISSUED state
         // paper.setIssued();
@@ -84,53 +84,28 @@ class FruitBasketContract extends Contract {
 
         // Check if currentOwner is different from newOwner
         if (basket.getOwner() === newOwner) {
+            console.log('___________________SELLER == OWNER __________________');
             throw new Error('You can\'t buy your own basket!');
         }
 
         // Validate buying price
-        if (basket.getPrice() > buyingPrice) {
+        if (Number.parseFloat(basket.getPrice()) > Number.parseFloat(buyingPrice)) {
             throw new Error('FruitBasket ' + basketKey + ' is not that cheap!');
         }
 
         basket.setOwner(newOwner);
-        basket.setPrice(buyingPrice);
+        basket.setPrice(Number.parseFloat(buyingPrice));
 
         // Update the basket
         await ctx.fruitBasketList.updateFruitBasket(basket);
         return basket;
     }
 
-    // /**
-    //  * Redeem commercial paper
-    //  *
-    //  * @param {Context} ctx the transaction context
-    //  * @param {String} issuer commercial paper issuer
-    //  * @param {Integer} paperNumber paper number for this issuer
-    //  * @param {String} redeemingOwner redeeming owner of paper
-    //  * @param {String} redeemDateTime time paper was redeemed
-    //  */
-    // async redeem(ctx, issuer, paperNumber, redeemingOwner, redeemDateTime) {
-    //
-    //     let paperKey = CommercialPaper.makeKey([issuer, paperNumber]);
-    //
-    //     let paper = await ctx.paperList.getPaper(paperKey);
-    //
-    //     // Check paper is not REDEEMED
-    //     if (paper.isRedeemed()) {
-    //         throw new Error('Paper ' + issuer + paperNumber + ' already redeemed');
-    //     }
-    //
-    //     // Verify that the redeemer owns the commercial paper before redeeming it
-    //     if (paper.getOwner() === redeemingOwner) {
-    //         paper.setOwner(paper.getIssuer());
-    //         paper.setRedeemed();
-    //     } else {
-    //         throw new Error('Redeeming owner does not own paper' + issuer + paperNumber);
-    //     }
-    //
-    //     await ctx.paperList.updatePaper(paper);
-    //     return paper;
-    // }
+    async queryBasket(ctx, seller, id) {
+        let basketKey = FruitBasket.makeKey([seller, id]);
+        return await ctx.fruitBasketList.getFruitBasket(basketKey);
+    }
+
 
 }
 
