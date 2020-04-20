@@ -2,7 +2,9 @@
   "name": "nodejs",
   "version": "1.0.0",
   "description": "",
+  "main": "sell.js",
   "scripts": {
+    "test": "rm -rf _idwallet && node addToWallet.js && node sell.js"
   },
   "keywords": [],
   "author": "",

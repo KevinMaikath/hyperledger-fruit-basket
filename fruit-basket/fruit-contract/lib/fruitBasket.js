@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 'use strict';
 
 // Utility class for ledger state
-const State = require('./../ledger-api/state.js');
+const State = require('../ledger-api/state.js');
 
 /**
  * FruitBasket class extends State class

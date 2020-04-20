@@ -19,11 +19,55 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const {Wallets, Gateway} = require('fabric-network');
 
+// Validate input params
+function validateInputs() {
+    if (process.argv[2] === 'all') {
+        console.warn('QueryAll has not been implemented yet.');
+        return false;
+    } else if (!process.argv[2] || !process.argv[3]) {
+        console.error('ERROR: invalid parameters. Seller name and basket ID must be provided correctly');
+        return false;
+    } else {
+        return true;
+    }
+}
+
 // Main program function
 async function main() {
 
-    // A wallet stores a collection of identities for use
-    const wallet = await Wallets.newFileSystemWallet('../identity/user/isabella/wallet');
+    if (!validateInputs()) {
+        return;
+    }
+
+    const envUser = process.env.CURRENTUSER;
+    if (!envUser) {
+        console.log('Environment current user is not set.');
+        console.log('Please set the current user as follows: export CURRENTUSER="isabella" (or "balaji")');
+        return;
+    }
+
+    let wallet;
+    let userName;
+    let connectionProfile;
+
+    if (envUser === 'isabella') {
+        // A wallet stores a collection of identities for use
+        wallet = await Wallets.newFileSystemWallet('../organization/magnetocorp/identity/user/isabella/wallet');
+
+        // Specify userName for network access
+        userName = 'isabella';
+
+        // Load connection profile; will be used to locate a gateway
+        connectionProfile = yaml.safeLoad(fs.readFileSync('../organization/magnetocorp/gateway/connection-org2.yaml', 'utf8'));
+
+    } else if (envUser === 'balaji') {
+        wallet = await Wallets.newFileSystemWallet('../organization/digibank/identity/user/balaji/wallet');
+        userName = 'balaji';
+        connectionProfile = yaml.safeLoad(fs.readFileSync('../organization/digibank/gateway/connection-org1.yaml', 'utf8'));
+    } else {
+        console.log(`The specified current user is invalid. Please use 'isabella' or 'balaji'`);
+        return;
+    }
 
     // A gateway defines the peers used to access Fabric networks
     const gateway = new Gateway();
@@ -31,18 +75,12 @@ async function main() {
     // Main try/catch block
     try {
 
-        // Specify userName for network access
-        // const userName = 'isabella.issuer@magnetocorp.com';
-        const userName = 'isabella';
-
-        // Load connection profile; will be used to locate a gateway
-        let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org2.yaml', 'utf8'));
-
         // Set connection options; identity and wallet
         let connectionOptions = {
             identity: userName,
             wallet: wallet,
             discovery: {enabled: true, asLocalhost: true}
+
         };
 
         // Connect to gateway using application specified parameters
@@ -60,15 +98,9 @@ async function main() {
 
         const contract = await network.getContract('fruitbasket');
 
+        // query fruit baskets
+        console.log('Submit fruit basket query transaction.');
         console.log('----------------------- Smart Contract Execution ---------------------------');
-        if (process.argv[2] === 'all') {
-            console.warn('QueryAll has not been implemented yet.');
-            throw new Error('QueryAll not implemented');
-        } else if (!process.argv[2] || !process.argv[3]) {
-            console.error('ERROR: invalid parameters. Seller name and basket ID must be provided correctly');
-            throw new Error('Invalid inputs');
-        }
-
         const queryResponse = await contract.submitTransaction('queryBasket', process.argv[2], process.argv[3]);
 
         // process response

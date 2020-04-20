@@ -57,6 +57,12 @@ class FruitBasketContract extends Contract {
      */
     async sell(ctx, seller, id, owner, fruitName, price) {
 
+        let basketKey = FruitBasket.makeKey([seller, id]);
+        let existingBasket = await ctx.fruitBasketList.getFruitBasket(basketKey);
+        if (existingBasket) {
+            throw new Error(`Fruit Basket with key ${basketKey} already exists!`);
+        }
+
         // create an instance of the basket
         let basket = FruitBasket.createInstance(seller, id, owner, fruitName, Number.parseFloat(price));
 
@@ -89,8 +95,8 @@ class FruitBasketContract extends Contract {
         }
 
         // Validate buying price
-        if (Number.parseFloat(basket.getPrice()) > Number.parseFloat(buyingPrice)) {
-            throw new Error('FruitBasket ' + basketKey + ' is not that cheap!');
+        if (basket.getPrice() > Number.parseFloat(buyingPrice)) {
+            throw new Error(`FruitBasket ${basketKey} with price: ${basket.getPrice()} can't be bought with ${Number.parseFloat(buyingPrice)}`);
         }
 
         basket.setOwner(newOwner);

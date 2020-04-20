@@ -20,14 +20,15 @@ const yaml = require('js-yaml');
 const {Wallets, Gateway} = require('fabric-network');
 
 // Initialize fruit basket values
-function initializeFruitBasket() {
+function initializeFruitBasket(username) {
 
+    // default values
     let basket = {
-        seller: 'Balaji',
+        seller: 'Seller',
         id: Math.floor(Math.random() * 1000).toString(),
-        owner: 'Balaji',
         fruitName: 'fruit',
-        price: '10'
+        owner: username,
+        price: '0'
     };
 
     process.argv.forEach((val, index) => {
@@ -35,7 +36,7 @@ function initializeFruitBasket() {
             basket.fruitName = val.split('=')[1];
         } else if (val.startsWith('price=')) {
             basket.price = val.split('=')[1];
-        } else if (val.startsWith('id')) {
+        } else if (val.startsWith('id=')) {
             basket.id = val.split('=')[1];
         } else if (val.startsWith('seller=')) {
             basket.seller = val.split('=')[1];
@@ -45,24 +46,55 @@ function initializeFruitBasket() {
     return basket;
 }
 
+// validate input values
+function validateSeller() {
+    return !!process.argv.find(val => val.startsWith('seller='));
+}
+
 // Main program function
 async function main() {
 
-    // A wallet stores a collection of identities for use
-    const wallet = await Wallets.newFileSystemWallet('../identity/user/balaji/wallet');
+    if (!validateSeller()) {
+         console.log('ERROR: a basket seller must be specified.');
+         console.log('You can set it as follows: seller=isabella');
+         return;
+    }
 
+    const envUser = process.env.CURRENTUSER;
+    if (!envUser) {
+        console.log('Environment current user is not set.');
+        console.log('Please set the current user as follows: export CURRENTUSER="isabella" (or "balaji")');
+        return;
+    }
+
+    let wallet;
+    let userName;
+    let connectionProfile;
+
+    if (envUser === 'isabella') {
+        // A wallet stores a collection of identities for use
+        wallet = await Wallets.newFileSystemWallet('../organization/magnetocorp/identity/user/isabella/wallet');
+
+        // Specify userName for network access
+        userName = 'isabella';
+
+        // Load connection profile; will be used to locate a gateway
+        connectionProfile = yaml.safeLoad(fs.readFileSync('../organization/magnetocorp/gateway/connection-org2.yaml', 'utf8'));
+
+    } else if (envUser === 'balaji') {
+        wallet = await Wallets.newFileSystemWallet('../organization/digibank/identity/user/balaji/wallet');
+        userName = 'balaji';
+        connectionProfile = yaml.safeLoad(fs.readFileSync('../organization/digibank/gateway/connection-org1.yaml', 'utf8'));
+    } else {
+        console.log(`The specified current user is invalid. Please use 'isabella' or 'balaji'`);
+        return;
+    }
 
     // A gateway defines the peers used to access Fabric networks
     const gateway = new Gateway();
 
     // Main try/catch block
     try {
-
-        // Specify userName for network access
-        const userName = 'balaji';
-
-        // Load connection profile; will be used to locate a gateway
-        let connectionProfile = yaml.safeLoad(fs.readFileSync('../gateway/connection-org1.yaml', 'utf8'));
 
         // Set connection options; identity and wallet
         let connectionOptions = {
@@ -87,19 +119,18 @@ async function main() {
 
         const contract = await network.getContract('fruitbasket');
 
-        // buy commercial paper
+        // buy a fruit basket
         console.log('Submit fruit basket buy transaction.');
+        console.log('----------------------- Smart Contract Execution ---------------------------');
 
-        const fruitBasket = initializeFruitBasket();
+        const fruitBasket = initializeFruitBasket(userName);
         const buyResponse = await contract.submitTransaction('buy', fruitBasket.seller, fruitBasket.id, fruitBasket.owner, fruitBasket.price);
 
         // process response
-        console.log('Process buy transaction response.');
-
         let basketResponse = JSON.parse(buyResponse.toString());
 
         console.log(`${basketResponse.seller} fruit basket : ${basketResponse.id} successfully bought with ${basketResponse.fruitName} at price: ${basketResponse.price}`);
-        console.log('Transaction complete.');
+        console.log('--------------------------- Transaction complete ---------------------------');
 
     } catch (error) {
 
