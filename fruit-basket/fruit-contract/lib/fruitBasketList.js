@@ -12,7 +12,7 @@ const FruitBasket = require('./fruitBasket.js');
 class FruitBasketList extends StateList {
 
     constructor(ctx) {
-        super(ctx, 'org.papernet.fruitbasketlist');
+        super(ctx, 'org.fruitbasket.fruitbasketlist');
         this.use(FruitBasket);
     }
 

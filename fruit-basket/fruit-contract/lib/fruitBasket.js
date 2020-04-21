@@ -81,7 +81,7 @@ class FruitBasket extends State {
     }
 
     static getClass() {
-        return 'org.papernet.fruitbasket';
+        return 'org.fruitbasket.fruitbasket';
     }
 }
 

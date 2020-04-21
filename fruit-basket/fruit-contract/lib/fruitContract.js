@@ -32,7 +32,7 @@ class FruitBasketContract extends Contract {
 
     constructor() {
         // Unique namespace when multiple contracts per chaincode file
-        super('org.papernet.fruitbasket');
+        super('org.fruitbasket.fruitcontract');
     }
 
     /**
@@ -65,9 +65,6 @@ class FruitBasketContract extends Contract {
 
         // create an instance of the basket
         let basket = FruitBasket.createInstance(seller, id, owner, fruitName, Number.parseFloat(price));
-
-        // // Smart contract, rather than paper, moves paper into ISSUED state
-        // paper.setIssued();
 
         // Newly issued basket is owned by the seller
         basket.setOwner(seller);
@@ -107,6 +104,9 @@ class FruitBasketContract extends Contract {
         return basket;
     }
 
+    /**
+     * Query for a specific FruitBasket given its seller and id
+     */
     async queryBasket(ctx, seller, id) {
         let basketKey = FruitBasket.makeKey([seller, id]);
         return await ctx.fruitBasketList.getFruitBasket(basketKey);

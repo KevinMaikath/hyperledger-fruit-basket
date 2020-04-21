@@ -115,7 +115,7 @@ async function main() {
         const network = await gateway.getNetwork('mychannel');
 
         // Get addressability to fruit basket paper contract
-        console.log('Use org.papernet.fruitbasket smart contract.');
+        console.log('Use org.fruitbasket.fruitcontract smart contract.');
 
         const contract = await network.getContract('fruitbasket');
 
