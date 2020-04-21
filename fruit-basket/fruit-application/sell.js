@@ -103,19 +103,20 @@ async function main() {
         // Get addressability to commercial paper contract
         console.log('Use org.fruitbasket.fruitcontract smart contract.');
 
-        const contract = await network.getContract('fruitbasket');
+        // get the contract instance (chaincodeName, contractName)
+        const contract = await network.getContract('fruitbasket', 'org.fruitbasket.fruitcontract');
 
         // sell a fruit basket
         console.log('Submit fruit basket sell transaction.');
         console.log('----------------------- Smart Contract Execution ---------------------------');
 
-        const newBasket = initializeFruitBasket();
+        const newBasket = initializeFruitBasket(userName);
         const sellResponse = await contract.submitTransaction('sell', newBasket.seller, newBasket.id, newBasket.owner, newBasket.fruitName, newBasket.price);
 
         // process response
         let basketResponse = JSON.parse(sellResponse.toString());
 
-        console.log(`${basketResponse.seller} fruit basket : ${basketResponse.id} successfully issued with ${basketResponse.fruitName} at price: ${basketResponse.price}`);
+        console.log(`${basketResponse.seller}'s ${basketResponse.fruitName} basket with id: ${basketResponse.id} successfully issued at price: ${basketResponse.price}`);
         console.log('--------------------------- Transaction complete ---------------------------');
 
     } catch (error) {

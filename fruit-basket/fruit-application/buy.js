@@ -117,7 +117,8 @@ async function main() {
         // Get addressability to fruit basket paper contract
         console.log('Use org.fruitbasket.fruitcontract smart contract.');
 
-        const contract = await network.getContract('fruitbasket');
+        // get the contract instance (chaincodeName, contractName)
+        const contract = await network.getContract('fruitbasket', 'org.fruitbasket.fruitcontract');
 
         // buy a fruit basket
         console.log('Submit fruit basket buy transaction.');
@@ -129,7 +130,7 @@ async function main() {
         // process response
         let basketResponse = JSON.parse(buyResponse.toString());
 
-        console.log(`${basketResponse.seller} fruit basket : ${basketResponse.id} successfully bought with ${basketResponse.fruitName} at price: ${basketResponse.price}`);
+        console.log(`${basketResponse.seller}'s ${basketResponse.fruitName} basket with id : ${basketResponse.id} successfully bought at price: ${basketResponse.price}`);
         console.log('--------------------------- Transaction complete ---------------------------');
 
     } catch (error) {

@@ -96,7 +96,8 @@ async function main() {
         // Get addressability to commercial paper contract
         console.log('Use org.fruitbasket.fruitcontract smart contract.');
 
-        const contract = await network.getContract('fruitbasket');
+        // get the contract instance (chaincodeName, contractName)
+        const contract = await network.getContract('fruitbasket', 'org.fruitbasket.fruitcontract');
 
         // query fruit baskets
         console.log('Submit fruit basket query transaction.');
