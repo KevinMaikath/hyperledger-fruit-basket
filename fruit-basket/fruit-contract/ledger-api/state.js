@@ -11,8 +11,8 @@ SPDX-License-Identifier: Apache-2.0
 class State {
 
     /**
-     * @param {String|Object} class  An indentifiable class of the instance
-     * @param {keyParts[]} elements to pull together to make a key for the objects
+     * @param {String|Object} stateClass An identifiable class of the instance
+     * @param {string[]} keyParts to pull together to make a key for the objects
      */
     constructor(stateClass, keyParts) {
         this.class = stateClass;
@@ -38,7 +38,7 @@ class State {
     /**
      * Convert object to buffer containing JSON data serialization
      * Typically used before putState()ledger API
-     * @param {Object} JSON object to serialize
+     * @param {Object} object to serialize
      * @return {buffer} buffer with the data to store
      */
     static serialize(object) {
@@ -59,26 +59,24 @@ class State {
         if (!objClass) {
             throw new Error(`Unknown class of ${json.class}`);
         }
-        let object = new (objClass)(json);
-
-        return object;
+        return new (objClass)(json);
     }
 
     /**
      * Deserialize object into specific object class
      * Typically used after getState() ledger API
      * @param {data} data to deserialize into JSON object
+     * @param {Object} objClass representing the class of the object to be deserialized
      * @return {json} json with the data to store
      */
     static deserializeClass(data, objClass) {
         let json = JSON.parse(data.toString());
-        let object = new (objClass)(json);
-        return object;
+        return new (objClass)(json);
     }
 
     /**
      * Join the keyParts to make a unififed string
-     * @param (String[]) keyParts
+     * @param {String[]} keyParts
      */
     static makeKey(keyParts) {
         return keyParts.map(part => part.toString()).join(':');

@@ -66,9 +66,6 @@ class FruitBasketContract extends Contract {
         // create an instance of the basket
         let basket = FruitBasket.createInstance(seller, id, owner, fruitName, Number.parseFloat(price));
 
-        // Newly issued basket is owned by the seller
-        basket.setOwner(seller);
-
         // Add the basket to the list of all similar fruit baskets in the ledger world state
         await ctx.fruitBasketList.addFruitBasket(basket);
 
@@ -77,7 +74,7 @@ class FruitBasketContract extends Contract {
     }
 
     /**
-     * Buy a fruit basket
+     * Buy a FruitBasket
      */
     async buy(ctx, seller, id, newOwner, buyingPrice) {
 
@@ -85,15 +82,19 @@ class FruitBasketContract extends Contract {
         let basketKey = FruitBasket.makeKey([seller, id]);
         let basket = await ctx.fruitBasketList.getFruitBasket(basketKey);
 
+        if (!basket) {
+            throw new Error(`The fruit basket with key ${basketKey} doesn't exist!`);
+        }
+
         // Check if currentOwner is different from newOwner
         if (basket.getOwner() === newOwner) {
-            console.log('___________________SELLER == OWNER __________________');
             throw new Error('You can\'t buy your own basket!');
         }
 
         // Validate buying price
         if (basket.getPrice() > Number.parseFloat(buyingPrice)) {
-            throw new Error(`FruitBasket ${basketKey} with price: ${basket.getPrice()} can't be bought with ${Number.parseFloat(buyingPrice)}`);
+            throw new Error(`FruitBasket ${basketKey} with price: ${basket.getPrice()}
+            can't be bought with ${Number.parseFloat(buyingPrice)}`);
         }
 
         basket.setOwner(newOwner);
@@ -107,9 +108,15 @@ class FruitBasketContract extends Contract {
     /**
      * Query for a specific FruitBasket given its seller and id
      */
+
     async queryBasket(ctx, seller, id) {
         let basketKey = FruitBasket.makeKey([seller, id]);
-        return await ctx.fruitBasketList.getFruitBasket(basketKey);
+        const basket = await ctx.fruitBasketList.getFruitBasket(basketKey);
+        if (!basket) {
+            throw new Error(`The fruit basket with key ${basketKey} doesn't exist!`);
+        }
+
+        return basket;
     }
 
 

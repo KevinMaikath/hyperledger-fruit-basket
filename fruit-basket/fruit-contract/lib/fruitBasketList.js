@@ -12,8 +12,12 @@ const FruitBasket = require('./fruitBasket.js');
 class FruitBasketList extends StateList {
 
     constructor(ctx) {
-        super(ctx, 'org.fruitbasket.fruitbasketlist');
+        super(ctx, FruitBasketList.getListName());
         this.use(FruitBasket);
+    }
+
+    static getListName() {
+        return 'org.fruitbasket.fruitbasketlist';
     }
 
     async addFruitBasket(fruitBasket) {
