@@ -13,7 +13,7 @@
     "fabric-network": "^2.0.0-beta.4",
     "fabric-client": "^2.0.0-beta.2",
     "js-yaml": "^3.13.1",
-    "jsrsasign": "^8.0.15",
+    "jsrsasign": "^10.2.0",
     "minimist": "^1.2.5"
   },
   "devDependencies": {
